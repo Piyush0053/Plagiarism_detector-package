@@ -1,0 +1,5 @@
+This is a sample text file that contains some original content.
+The purpose of this file is to test the plagiarism detection algorithm.
+We will compare this file with other files to see if the algorithm can detect similarities.
+Plagiarism detection is an important tool for academic integrity.
+It helps ensure that students and researchers properly cite their sources. 

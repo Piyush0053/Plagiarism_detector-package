@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plagiarism detector</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #1cc88a;
+            --dark-color: #5a5c69;
+            --light-color: #f8f9fc;
+        }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--light-color);
+        }
+        
+        .navbar {
+            background-color: white;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 0.35rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid #e3e6f0;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: #2e59d9;
+            border-color: #2e59d9;
+        }
+        
+        .btn-success {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .btn-success:hover {
+            background-color: #17a673;
+            border-color: #17a673;
+        }
+        
+        .tab-content {
+            padding-top: 20px;
+        }
+        
+        .nav-tabs .nav-link {
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+        
+        .file-upload-wrapper {
+            position: relative;
+            width: 100%;
+            height: 60px;
+            border: 2px dashed #e3e6f0;
+            border-radius: 0.35rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-upload-wrapper:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .file-upload-label {
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+        
+        .footer {
+            background-color: white;
+            box-shadow: 0 -0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            padding: 1.5rem 0;
+            color: var(--dark-color);
+        }
+        
+        .hero-section {
+            background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            padding: 100px 0;
+            margin-bottom: 30px;
+        }
+        
+        .hero-title {
+            font-weight: 800;
+            color: #2e384d;
+        }
+        
+        .hero-subtitle {
+            color: #4a5568;
+            font-weight: 500;
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .flash-messages {
+            margin-top: 20px;
+        }
+
+        .textarea-container {
+            position: relative;
+        }
+
+        .textarea-container textarea {
+            resize: none;
+            height: 200px;
+        }
+
+        .textarea-counter {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            color: var(--dark-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-search-plus me-2"></i>Plagiarism Detector
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#plagiarism-checker">Plagiarism Checker</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1>Advanced Plagiarism Detection</h1>
+                    <p class="lead">Quick, accurate, and easy-to-use plagiarism checker for your documents, text, and files.</p>
+                    <a href="#plagiarism-checker" class="btn btn-light btn-lg">
+                        <i class="fas fa-check me-2"></i>Check Plagiarism Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Flash Messages -->
+    <section class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </section>
+
+    <!-- Plagiarism Checker Section -->
+    <section id="plagiarism-checker" class="container my-5">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Plagiarism Checker</h2>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="plagiarismTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text" type="button" role="tab" aria-controls="text" aria-selected="true">Text Comparison</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="file-tab" data-bs-toggle="tab" data-bs-target="#file" type="button" role="tab" aria-controls="file" aria-selected="false">File Comparison</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="folder-tab" data-bs-toggle="tab" data-bs-target="#folder" type="button" role="tab" aria-controls="folder" aria-selected="false">Multiple Files Check</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="web-text-tab" data-bs-toggle="tab" data-bs-target="#web-text" type="button" role="tab" aria-controls="web-text" aria-selected="false">Web Check (Text)</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="web-file-tab" data-bs-toggle="tab" data-bs-target="#web-file" type="button" role="tab" aria-controls="web-file" aria-selected="false">Web Check (File)</button>
+                    </li>
+                </ul>
+                <div class="tab-content p-3" id="plagiarismTabsContent">
+                    <!-- Text Comparison Tab -->
+                    <div class="tab-pane fade show active" id="text" role="tabpanel" aria-labelledby="text-tab">
+                        <form action="/compare-text" method="post">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="text1" class="form-label">Text 1</label>
+                                    <div class="position-relative">
+                                        <textarea class="form-control" id="text1" name="text1" rows="10" placeholder="Enter the first text to compare" required></textarea>
+                                        <div class="char-count">0 characters</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="text2" class="form-label">Text 2</label>
+                                    <div class="position-relative">
+                                        <textarea class="form-control" id="text2" name="text2" rows="10" placeholder="Enter the second text to compare" required></textarea>
+                                        <div class="char-count">0 characters</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Check Plagiarism</button>
+                        </form>
+                    </div>
+                    
+                    <!-- File Comparison Tab -->
+                    <div class="tab-pane fade" id="file" role="tabpanel" aria-labelledby="file-tab">
+                        <form action="/compare-files" method="post" enctype="multipart/form-data">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="file1" class="form-label">File 1</label>
+                                    <div class="custom-file-upload" id="file1-upload">
+                                        <input type="file" class="form-control" id="file1" name="file1" required>
+                                        <div class="drop-zone">
+                                            <span class="drop-zone-prompt">
+                                                <i class="fas fa-cloud-upload-alt"></i>
+                                                <br>Drag & Drop or Click to Upload
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="file2" class="form-label">File 2</label>
+                                    <div class="custom-file-upload" id="file2-upload">
+                                        <input type="file" class="form-control" id="file2" name="file2" required>
+                                        <div class="drop-zone">
+                                            <span class="drop-zone-prompt">
+                                                <i class="fas fa-cloud-upload-alt"></i>
+                                                <br>Drag & Drop or Click to Upload
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Check Plagiarism</button>
+                        </form>
+                    </div>
+                    
+                    <!-- Multiple Files Check Tab -->
+                    <div class="tab-pane fade" id="folder" role="tabpanel" aria-labelledby="folder-tab">
+                        <form action="/check-folder" method="post" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="folder" class="form-label">Upload Multiple Files</label>
+                                <div class="custom-file-upload" id="folder-upload">
+                                    <input type="file" class="form-control" id="folder" name="folder" multiple required>
+                                    <div class="drop-zone">
+                                        <span class="drop-zone-prompt">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <br>Drag & Drop or Click to Upload Multiple Files
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="form-text">Upload at least two files to check for plagiarism between them.</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Check Plagiarism</button>
+                        </form>
+                    </div>
+                    
+                    <!-- Web Check (Text) Tab -->
+                    <div class="tab-pane fade" id="web-text" role="tabpanel" aria-labelledby="web-text-tab">
+                        <form action="/check-text-web-plagiarism" method="post">
+                            <div class="mb-3">
+                                <label for="web-text-input" class="form-label">Text Content</label>
+                                <div class="position-relative">
+                                    <textarea class="form-control" id="web-text-input" name="text" rows="10" placeholder="Enter text to check for plagiarism against web sources" required></textarea>
+                                    <div class="char-count">0 characters</div>
+                                </div>
+                            </div>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> This will extract phrases from your text, search them on Google, and compare your content with web sources.
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-globe"></i> Check Web Plagiarism
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Web Check (File) Tab -->
+                    <div class="tab-pane fade" id="web-file" role="tabpanel" aria-labelledby="web-file-tab">
+                        <form action="/check-web-plagiarism" method="post" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="web-file" class="form-label">Upload File</label>
+                                <div class="custom-file-upload" id="web-file-upload">
+                                    <input type="file" class="form-control" id="web-file" name="file" required>
+                                    <div class="drop-zone">
+                                        <span class="drop-zone-prompt">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <br>Drag & Drop or Click to Upload
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> This will extract phrases from your document, search them on Google, and compare your content with web sources.
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-globe"></i> Check Web Plagiarism
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5 bg-light">
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2>Advanced Features</h2>
+                    <p class="lead text-muted">Why choose our plagiarism detector</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="feature-box h-100">
+                        <div class="feature-icon mx-auto">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h4>Fast & Accurate</h4>
+                        <p class="text-muted">Our algorithm detects similarities between texts quickly and with high precision using advanced NLP techniques.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-box h-100">
+                        <div class="feature-icon mx-auto">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <h4>Detailed Analysis</h4>
+                        <p class="text-muted">Get comprehensive reports with similarity scores, visual charts, and categorized similarity levels.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-box h-100">
+                        <div class="feature-icon mx-auto">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h4>Privacy Focused</h4>
+                        <p class="text-muted">Your documents remain private and are not stored on our servers after the analysis is complete.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-box h-100">
+                        <div class="feature-icon mx-auto">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <h4>Multiple File Formats</h4>
+                        <p class="text-muted">Support for various file formats including TXT, PDF, and DOC files.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-box h-100">
+                        <div class="feature-icon mx-auto">
+                            <i class="fas fa-folder"></i>
+                        </div>
+                        <h4>Bulk Analysis</h4>
+                        <p class="text-muted">Compare multiple documents at once to find similarities across your entire document collection.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-box h-100">
+                        <div class="feature-icon mx-auto">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h4>Mobile Friendly</h4>
+                        <p class="text-muted">Access our plagiarism detector from any device with a responsive design that works on desktop and mobile.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-5">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2>About FROMI Plagiarism Detector</h2>
+                    <p class="lead">A powerful tool for content originality verification</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="card">
+                        <div class="card-body">
+                            <p>The FROMI Plagiarism Detector is a sophisticated tool designed to identify similarities between texts, documents, and files. Our technology uses advanced natural language processing and machine learning algorithms to detect potential plagiarism with high accuracy.</p>
+                            
+                            <p>Whether you're a student, teacher, writer, or researcher, our plagiarism checker helps you ensure the originality of your content. By comparing your text against other documents, we provide detailed insights into potential matches and similarity levels.</p>
+                            
+                            <h5 class="mt-4">How Our Technology Works</h5>
+                            <p>Our plagiarism detection system works through several key steps:</p>
+                            <ol>
+                                <li><strong>Text Preprocessing</strong>: We tokenize the text, remove stopwords, and apply stemming to focus on the meaningful content.</li>
+                                <li><strong>TF-IDF Vectorization</strong>: Documents are converted into numerical vectors that represent the importance of terms.</li>
+                                <li><strong>Cosine Similarity</strong>: We measure the similarity between document vectors to identify matching content.</li>
+                                <li><strong>Result Analysis</strong>: Similarity scores are categorized as High, Moderate, or Low to help interpret the results.</li>
+                            </ol>
+                            
+                            <p>Our system is designed to be both user-friendly and powerful, providing you with the tools you need to verify content originality efficiently.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Advanced Detection section -->
+    <div class="card mt-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0"><i class="fas fa-brain"></i> Advanced Plagiarism Detection</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header text-center">
+                            <h5 class="card-title mb-0">Advanced Text Comparison</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">Compare two texts using multiple NLP models including Word Embeddings, Sentence Transformers, and BERT.</p>
+                            <form action="/advanced-compare-text" method="post">
+                                <div class="mb-3">
+                                    <label for="advancedText1" class="form-label">Text 1</label>
+                                    <textarea class="form-control" id="advancedText1" name="text1" rows="3" required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="advancedText2" class="form-label">Text 2</label>
+                                    <textarea class="form-control" id="advancedText2" name="text2" rows="3" required></textarea>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary">Compare with Advanced Models</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header text-center">
+                            <h5 class="card-title mb-0">Advanced File Comparison</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">Compare two files using our powerful multi-model plagiarism detection system.</p>
+                            <form action="/advanced-compare-files" method="post" enctype="multipart/form-data">
+                                <div class="mb-3">
+                                    <label for="advancedFile1" class="form-label">File 1</label>
+                                    <input class="form-control" type="file" id="advancedFile1" name="file1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="advancedFile2" class="form-label">File 2</label>
+                                    <input class="form-control" type="file" id="advancedFile2" name="file2" required>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary">Compare with Advanced Models</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Multilingual Comparison section -->
+    <div class="card mt-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="card-title mb-0"><i class="fas fa-language"></i> Multilingual Plagiarism Detection</h5>
+        </div>
+        <div class="card-body">
+            <p class="card-text">Compare texts across different languages using our multilingual detection models.</p>
+            <form action="/multilingual-compare-text" method="post">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="multilingual1" class="form-label">Text 1</label>
+                            <textarea class="form-control" id="multilingual1" name="text1" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="language1" class="form-label">Language</label>
+                            <select class="form-select" id="language1" name="language1">
+                                <option value="en" selected>English</option>
+                                <option value="es">Spanish</option>
+                                <option value="fr">French</option>
+                                <option value="de">German</option>
+                                <option value="it">Italian</option>
+                                <option value="pt">Portuguese</option>
+                                <option value="ru">Russian</option>
+                                <option value="zh">Chinese</option>
+                                <option value="ja">Japanese</option>
+                                <option value="ar">Arabic</option>
+                                <option value="hi">Hindi</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="multilingual2" class="form-label">Text 2</label>
+                            <textarea class="form-control" id="multilingual2" name="text2" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="language2" class="form-label">Language</label>
+                            <select class="form-select" id="language2" name="language2">
+                                <option value="en" selected>English</option>
+                                <option value="es">Spanish</option>
+                                <option value="fr">French</option>
+                                <option value="de">German</option>
+                                <option value="it">Italian</option>
+                                <option value="pt">Portuguese</option>
+                                <option value="ru">Russian</option>
+                                <option value="zh">Chinese</option>
+                                <option value="ja">Japanese</option>
+                                <option value="ar">Arabic</option>
+                                <option value="hi">Hindi</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-success">Compare Multilingual Texts</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Feature summary section -->
+    <div class="card mt-4 mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="card-title mb-0"><i class="fas fa-star"></i> Advanced Features Summary</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-vector-square fa-3x text-primary mb-2"></i>
+                        <h5>Word Embeddings</h5>
+                        <p class="small">Uses semantic word vectors to detect similar meanings even when different words are used.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-robot fa-3x text-danger mb-2"></i>
+                        <h5>Transformer Models</h5>
+                        <p class="small">Leverages state-of-the-art NLP models to understand context and sentence meaning.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-language fa-3x text-success mb-2"></i>
+                        <h5>Multilingual Support</h5>
+                        <p class="small">Detect plagiarism across different languages with our multilingual models.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-sync-alt fa-3x text-warning mb-2"></i>
+                        <h5>Paraphrase Detection</h5>
+                        <p class="small">Find reworded content that traditional systems might miss.</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-brain fa-3x text-info mb-2"></i>
+                        <h5>Combined Intelligence</h5>
+                        <p class="small">Integrates multiple NLP approaches for higher accuracy and better plagiarism detection.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2024 FROMI Plagiarism Detector. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-decoration-none me-3">Privacy Policy</a>
+                    <a href="#" class="text-decoration-none">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html> 

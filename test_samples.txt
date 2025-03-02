@@ -1,0 +1,11 @@
+# Original Text
+The impact of climate change on global ecosystems is profound and far-reaching. Rising temperatures are causing polar ice caps to melt, leading to rising sea levels and threatening coastal communities worldwide. Additionally, extreme weather events such as hurricanes, droughts, and floods are becoming more frequent and severe, disrupting agriculture and food security. Biodiversity loss is accelerating as many species cannot adapt quickly enough to changing conditions.
+
+# Plagiarized Version (with modifications)
+The effects of climate change on worldwide ecosystems are extensive and significant. Increasing global temperatures are melting polar ice, resulting in higher sea levels that endanger coastal populations across the globe. Moreover, severe weather phenomena including hurricanes, droughts, and flooding are occurring with greater frequency and intensity, threatening agricultural production and food availability. The loss of biodiversity is happening at an alarming rate as numerous species fail to adapt rapidly enough to the changing environmental conditions.
+
+# Original Academic Paragraph
+Quantum computing represents a paradigm shift in computational theory, leveraging quantum mechanical phenomena such as superposition and entanglement to perform operations on data. Unlike classical bits, which exist in either a 0 or 1 state, quantum bits or "qubits" can exist in multiple states simultaneously, potentially enabling certain algorithms to run exponentially faster than their classical counterparts.
+
+# Complete Copy (Plagiarism)
+Quantum computing represents a paradigm shift in computational theory, leveraging quantum mechanical phenomena such as superposition and entanglement to perform operations on data. Unlike classical bits, which exist in either a 0 or 1 state, quantum bits or "qubits" can exist in multiple states simultaneously, potentially enabling certain algorithms to run exponentially faster than their classical counterparts. 

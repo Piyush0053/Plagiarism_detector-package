@@ -1,0 +1,10 @@
+{
+  "model_name": "microsoft/deberta-v3-small",
+  "batch_size": 4,
+  "epochs": 1,
+  "learning_rate": 2e-05,
+  "max_length": 256,
+  "data_path": "dataset/plagiarism_dataset.csv",
+  "device": "cpu",
+  "date_trained": "2025-03-03 00:01:14"
+}
